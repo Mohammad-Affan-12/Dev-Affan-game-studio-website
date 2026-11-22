@@ -1,0 +1,24 @@
+{
+  "studioName": "Dev Affan",
+  "tagline": "Original offline physics puzzle games crafted for Android and Google Play.",
+  "description": "Dev Affan is an independent mobile game studio crafting colorful, tactile Android puzzle games, featuring Color Ball Drop: Rope Puzzle.",
+  "siteUrl": "",
+  "siteUrlPlaceholder": "https://dev-affan-game-studio-website.pages.dev",
+  "githubUrl": "https://github.com/Mohammad-Affan-12/Dev-Affan-game-studio-website",
+  "contact": {
+    "email": "",
+    "emailVerified": false,
+    "githubIssuesUrl": "https://github.com/Mohammad-Affan-12/Dev-Affan-game-studio-website/issues"
+  },
+  "social": {
+    "youtube": "",
+    "tiktok": "",
+    "instagram": "",
+    "x": ""
+  },
+  "analytics": {
+    "cloudflareWebAnalyticsToken": "",
+    "ga4MeasurementId": ""
+  },
+  "lastUpdated": "2026-11-22"
+}

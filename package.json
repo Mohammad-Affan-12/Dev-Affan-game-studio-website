@@ -1,0 +1,16 @@
+{
+  "name": "dev-affan-game-studio-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Official static website for Dev Affan — indie casual mobile game studio built with Godot for Android and Google Play.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/dev-server.mjs",
+    "test": "node tests/verify-site.mjs",
+    "test:browser": "node tests/browser-qa.mjs"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

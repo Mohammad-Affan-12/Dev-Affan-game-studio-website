@@ -1,0 +1,7 @@
+dist/
+node_modules/
+qa-screenshots/
+.agents/
+.DS_Store
+Thumbs.db
+*.log
