@@ -37,6 +37,16 @@ function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
 }
 
+function minifyCss(css) {
+  return css
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\s+/g, " ")
+    .replace(/\s*([{}:;,>+~])\s*/g, "$1")
+    .replace(/;}/g, "}")
+    .replace(/\band\(/g, "and (")
+    .trim();
+}
+
 function copyDir(src, dest) {
   if (!fs.existsSync(src)) return;
   ensureDir(dest);
@@ -276,7 +286,9 @@ function renderLayout({
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@500;600;700;800&display=swap"></noscript>
+  ${currentPath === "/" ? '<link rel="preload" as="image" href="/assets/art/color-ball-drop-hero-stage-540.webp" imagesrcset="/assets/art/color-ball-drop-hero-stage-540.webp 485w, /assets/art/color-ball-drop-hero-stage.webp 808w" imagesizes="(max-width: 767px) 242px, (max-width: 959px) 377px, 449px" fetchpriority="high">' : ""}
 
   <link rel="stylesheet" href="/styles/tokens.css${tokensQuery}">
   <link rel="stylesheet" href="/styles/main.css${mainCssQuery}">
@@ -482,11 +494,12 @@ function buildHomePage(site, games, assetVersions) {
               <img
                 src="/assets/art/color-ball-drop-hero-stage.webp"
                 srcset="/assets/art/color-ball-drop-hero-stage-540.webp 485w, /assets/art/color-ball-drop-hero-stage.webp 808w"
-                sizes="(max-width: 959px) 92vw, 480px"
+                sizes="(max-width: 767px) 242px, (max-width: 959px) 377px, 449px"
                 alt="Promotional 2.5D illustration for Color Ball Drop showing glossy red, blue, yellow, green, and steel balls suspended on wooden beams and gold ropes above matching glowing buckets"
                 width="808"
                 height="900"
                 loading="eager"
+                decoding="async"
                 fetchpriority="high"
               >
             </div>
@@ -1470,6 +1483,12 @@ export function buildSite({
   ensureDir(outDir);
 
   copyDir(path.join(srcDir, "styles"), path.join(outDir, "styles"));
+  for (const cssFile of ["tokens.css", "main.css"]) {
+    const destCss = path.join(outDir, "styles", cssFile);
+    if (fs.existsSync(destCss)) {
+      fs.writeFileSync(destCss, minifyCss(fs.readFileSync(destCss, "utf8")), "utf8");
+    }
+  }
   copyDir(path.join(srcDir, "scripts"), path.join(outDir, "scripts"));
   copyDir(path.join(srcDir, "assets"), path.join(outDir, "assets"));
 

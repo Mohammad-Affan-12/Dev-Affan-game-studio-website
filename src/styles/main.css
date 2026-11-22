@@ -648,7 +648,9 @@ code {
 
 .hero-stage__media {
   position: relative;
-  width: fit-content;
+  height: clamp(220px, 28vh, 270px);
+  aspect-ratio: 808 / 900;
+  width: auto;
   max-width: 100%;
   display: flex;
   justify-content: center;
@@ -659,31 +661,24 @@ code {
   overflow: hidden;
 }
 
+@media (min-width: 768px) {
+  .hero-stage__media {
+    height: clamp(320px, 42vh, 420px);
+  }
+}
+
 @media (min-width: 960px) {
   .hero-stage__media {
+    height: clamp(380px, 60vh, 500px);
     margin-left: auto;
   }
 }
 
 .hero-stage__media img {
   display: block;
-  width: auto;
-  max-width: 100%;
-  height: auto;
-  max-height: clamp(220px, 28vh, 270px);
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-}
-
-@media (min-width: 768px) {
-  .hero-stage__media img {
-    max-height: clamp(320px, 42vh, 420px);
-  }
-}
-
-@media (min-width: 960px) {
-  .hero-stage__media img {
-    max-height: clamp(380px, 60vh, 500px);
-  }
 }
 
 @media (max-width: 540px) {
