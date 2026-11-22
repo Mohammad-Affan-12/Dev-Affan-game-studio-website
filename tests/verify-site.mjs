@@ -85,10 +85,27 @@ async function runTests() {
     assert.match(html, /\/styles\/main\.css\?v=[a-f0-9]{8}/, `${rel}: missing cache-busting query on main.css`);
     assert.match(html, /\/scripts\/main\.js\?v=[a-f0-9]{8}/, `${rel}: missing cache-busting query on main.js`);
 
+    const is404 = rel === "404.html";
+    if (is404) {
+      assert.match(html, /<meta\s+name="robots"\s+content="noindex,\s*follow">/i, `${rel}: 404 should be noindex, follow`);
+      assert.doesNotMatch(html, /<link\s+rel="canonical"/i, `${rel}: 404 should omit canonical`);
+    } else {
+      assert.doesNotMatch(html, /name="robots"[^>]*noindex/i, `${rel}: production page must not be noindex`);
+      assert.match(
+        html,
+        /<link\s+rel="canonical"\s+href="https:\/\/games\.devaffan\.workers\.dev\//i,
+        `${rel}: missing or wrong canonical URL`
+      );
+      assert.match(
+        html,
+        /<meta\s+property="og:url"\s+content="https:\/\/games\.devaffan\.workers\.dev\//i,
+        `${rel}: missing or wrong og:url`
+      );
+    }
     assert.doesNotMatch(
       html,
-      /<link\s+rel="canonical"/i,
-      `${rel}: canonical should stay omitted until siteUrl is confirmed`
+      /dev-affan-game-studio-website\.pages\.dev/i,
+      `${rel}: obsolete pages.dev hostname found`
     );
 
     const ldMatches = [...html.matchAll(/<script\s+type="application\/ld\+json">([\s\S]*?)<\/script>/gi)];
@@ -134,10 +151,27 @@ async function runTests() {
     "contact/index.html must not present GitHub repository as a public support channel"
   );
 
+  const homeHtml = fs.readFileSync(path.join(distDir, "index.html"), "utf8");
+  assert.match(
+    homeHtml,
+    /<meta name="google-site-verification" content="F1lUHnX-s_2v30R6uaZiPNhur1ECMNuHlu9cmbPwGQ0" \/>/,
+    "Homepage missing Google Search Console verification meta tag"
+  );
+
   assert.ok(fs.existsSync(path.join(distDir, "robots.txt")), "Missing robots.txt");
   assert.ok(fs.existsSync(path.join(distDir, "sitemap.xml")), "Missing sitemap.xml");
   assert.ok(fs.existsSync(path.join(distDir, "_headers")), "Missing Cloudflare _headers");
+  const robotsTxt = fs.readFileSync(path.join(distDir, "robots.txt"), "utf8");
+  assert.match(robotsTxt, /^Sitemap:\s+https:\/\/games\.devaffan\.workers\.dev\/sitemap\.xml$/m, "robots.txt missing primary domain sitemap");
+  assert.doesNotMatch(robotsTxt, /pages\.dev/i, "robots.txt contains obsolete pages.dev hostname");
+
   const sitemap = fs.readFileSync(path.join(distDir, "sitemap.xml"), "utf8");
+  const sitemapLocs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  assert.equal(sitemapLocs.length, 9, `Expected 9 sitemap URLs, found ${sitemapLocs.length}`);
+  for (const loc of sitemapLocs) {
+    assert.ok(loc.startsWith("https://games.devaffan.workers.dev/"), `Sitemap URL uses wrong host: ${loc}`);
+  }
+  assert.doesNotMatch(sitemap, /pages\.dev/i, "sitemap.xml contains obsolete pages.dev hostname");
   assert.match(sitemap, /\/games\/color-ball-drop\//, "Sitemap missing Color Ball Drop page");
   assert.match(sitemap, /\/privacy\/color-ball-drop\//, "Sitemap missing Color Ball Drop privacy page");
   assert.match(sitemap, /\/games\/cut-and-cascade\//, "Sitemap missing Cut & Cascade future page");

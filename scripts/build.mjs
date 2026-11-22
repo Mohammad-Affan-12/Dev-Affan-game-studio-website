@@ -209,7 +209,7 @@ function renderLayout({
   content,
 }) {
   const baseUrl = normalizeBaseUrl(site.siteUrl);
-  const canonicalUrl = baseUrl ? `${baseUrl}${currentPath}` : "";
+  const canonicalUrl = baseUrl && !noIndex ? `${baseUrl}${currentPath}` : "";
   const resolvedOgImage = baseUrl ? `${baseUrl}${ogImage}` : ogImage;
   const tokensQuery = assetVersions.tokensCss ? `?v=${assetVersions.tokensCss}` : "";
   const mainCssQuery = assetVersions.mainCss ? `?v=${assetVersions.mainCss}` : "";
