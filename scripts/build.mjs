@@ -99,6 +99,7 @@ function renderGameArtwork(game, { loading = "lazy", priority = false } = {}) {
   return "";
 }
 
+
 function renderStoreCta(game, location, variant = "primary") {
   const isReleased = game.status === "released" && Boolean(game.googlePlayUrl);
   if (isReleased) {
@@ -253,6 +254,7 @@ function renderLayout({
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}">
+  ${currentPath === "/" ? '<meta name="google-site-verification" content="F1lUHnX-s_2v30R6uaZiPNhur1ECMNuHlu9cmbPwGQ0" />' : ""}
   ${noIndex ? '<meta name="robots" content="noindex, follow">' : ""}
   ${canonicalUrl ? `<link rel="canonical" href="${escapeHtml(canonicalUrl)}">` : ""}
   <meta name="theme-color" content="#070e20">
