@@ -4,14 +4,14 @@
     "slug": "color-ball-drop",
     "title": "Color Ball Drop: Rope Puzzle",
     "shortTitle": "Color Ball Drop",
-    "shortPitch": "Swipe gold ropes and wooden supports to release colored balls, navigate clever physics contraptions, and guide every ball into its matching bucket.",
+    "shortPitch": "Swipe gold ropes and wooden supports to release colored balls, trigger chain reactions across clever contraptions, and guide every ball into its matching bucket.",
     "longDescription": [
-      "Color Ball Drop: Rope Puzzle is an offline 2D physics puzzle game for Android built around satisfying timing and chain reactions.",
-      "Across 100 handcrafted portrait levels and 5 chapters, you swipe through gold ropes and wooden beams, master seesaw bridges, portal pairs, color filter gates, and dye rings, and guide red, blue, yellow, green, and heavy steel balls cleanly into matching buckets."
+      "Color Ball Drop: Rope Puzzle is an offline 2D physics puzzle game for Android built around timing, gravity, and clean chain reactions.",
+      "Across 100 handcrafted portrait levels and 5 chapters, you swipe through gold ropes and wooden beams, bounce across bumper pins, tip seesaw bridges, pass through color filter gates and dye rings, and guide red, blue, yellow, green, and heavy steel balls into matching buckets."
     ],
     "status": "coming-soon",
-    "statusLabel": "Coming Soon",
-    "releaseNote": "In development for Android — coming soon to Google Play.",
+    "statusLabel": "Coming Soon on Google Play",
+    "releaseNote": "In development for Android. Coming soon to Google Play.",
     "engine": "Godot 4.7.2",
     "platform": "Android (Google Play)",
     "genre": "Physics Puzzle",
@@ -45,111 +45,111 @@
     "features": [
       {
         "icon": "levels",
-        "title": "100 Playable Levels",
-        "description": "Progress across 5 chapters with 1–3 stars per level and earn coins as your puzzle skills grow."
+        "title": "100 Handcrafted Levels",
+        "description": "Play across 5 chapters with 1 to 3 stars per puzzle and earn coins as each level scales up."
       },
       {
         "icon": "physics",
         "title": "12 Physics Contraptions",
-        "description": "Master cuttable ropes, wooden beams, steel chains, bumper pins, seesaw bridges, color gates, dye rings, and portals."
+        "description": "Combine gold ropes, wooden beams, steel chains, bumper pins, seesaw bridges, color gates, dye rings, and portals."
       },
       {
         "icon": "daily",
-        "title": "Daily Challenge & Streaks",
-        "description": "Jump into daily puzzles, build daily streak rewards, and use the built-in hint system when a level gets tricky."
+        "title": "Daily Challenges & Hints",
+        "description": "Take on daily puzzle runs, build streak rewards, and reveal step hints whenever a puzzle stumps you."
       },
       {
         "icon": "trails",
         "title": "8 Unlockable Blade Trails",
-        "description": "Customize your swipe with unlockable blade trails earned through coins or star milestones."
+        "description": "Customize your swipe arc with eight blade trails unlocked using earned coins or star milestones."
       },
       {
         "icon": "accessibility",
-        "title": "Colorblind Symbols & Multi-Language",
-        "description": "Distinct shape symbols on colored balls and buckets, multiple languages, and audio/vibration controls."
+        "title": "Colorblind Symbols & Languages",
+        "description": "Distinct geometric shapes on every colored ball and bucket, multiple languages, and sound and vibration toggles."
       },
       {
         "icon": "offline",
-        "title": "Play Offline Anytime",
-        "description": "Designed for portrait one-hand Android play with local progress saves — no account or constant connection required."
+        "title": "Built for Offline Portrait Play",
+        "description": "One-hand Android touch controls with local device saves so every level stays playable offline."
       }
     ],
     "media": {
       "conceptCover": "/assets/art/color-ball-drop-cover.webp",
       "conceptCoverSmall": "/assets/art/color-ball-drop-cover-768.webp",
-      "conceptCoverAlt": "Promotional 2.5D illustration for Color Ball Drop showing glossy red, blue, yellow, and green balls dropping from a snipped gold rope into matching colored buckets",
+      "conceptCoverAlt": "Promotional illustration for Color Ball Drop showing glossy red, blue, yellow, and green balls dropping from a snipped gold rope into matching colored buckets",
       "conceptMechanics": "/assets/art/color-ball-drop-mechanics.webp",
-      "conceptMechanicsAlt": "Promotional 2.5D illustration showing colored and steel balls crossing a wooden seesaw bridge, bumper pins, portal ring, and color filter gate",
+      "conceptMechanicsAlt": "Promotional illustration showing colored and steel balls crossing a wooden seesaw bridge, bumper pins, portal ring, and color filter gate",
       "heroImage": "",
       "heroImageAlt": "Color Ball Drop promotional artwork",
       "videoUrl": "/assets/games/color-ball-drop/gameplay-level-3.mp4",
       "videoPoster": "/assets/games/color-ball-drop/shot-level-01.webp",
       "screenshots": [
         {
-          "src": "/assets/games/color-ball-drop/shot-home.webp",
-          "alt": "Real Color Ball Drop main menu screen showing the four-ball rope emblem, star and coin counters, daily challenge, and blade trails",
-          "caption": "Main Menu — Color Ball Drop"
-        },
-        {
           "src": "/assets/games/color-ball-drop/shot-level-01.webp",
-          "alt": "Real Color Ball Drop gameplay screenshot of Chapter 1 Level 01 Twin Cascades with swipe-to-cut guide, red and blue balls, and matching buckets",
-          "caption": "Level 01 — Twin Cascades"
+          "alt": "Gameplay capture of Color Ball Drop Chapter 1 Level 01 Twin Cascades showing swipe guide, red and blue balls, and matching buckets",
+          "caption": "Level 01: Plan your first cut and split red and blue balls"
         },
         {
           "src": "/assets/games/color-ball-drop/shot-mastery-99.webp",
-          "alt": "Real Color Ball Drop gameplay screenshot of Chapter 5 Level 99 Mastery XIX Ultimate Contraption with steel balls, color gates, dye rings, and four buckets",
-          "caption": "Level 99 — Ultimate Contraption"
+          "alt": "Gameplay capture of Color Ball Drop Chapter 5 Level 99 Mastery XIX Ultimate Contraption showing steel balls, color filter gates, dye rings, and four buckets",
+          "caption": "Level 99: Chain steel balls, dye rings, and color gates"
         },
         {
           "src": "/assets/games/color-ball-drop/shot-level-select.webp",
-          "alt": "Real Color Ball Drop level selection screen showing Chapter 1 The First Cut and 5 chapter tabs",
-          "caption": "5 Chapters · 100 Levels"
-        },
-        {
-          "src": "/assets/games/color-ball-drop/shot-win.webp",
-          "alt": "Real Color Ball Drop level complete screen awarding 3 stars and coins",
-          "caption": "3-Star Completion & Coins"
+          "alt": "Gameplay capture of the Color Ball Drop level selection screen showing Chapter 1 The First Cut and five chapter tabs",
+          "caption": "5 Chapters: 100 playable levels and 300 stars to earn"
         },
         {
           "src": "/assets/games/color-ball-drop/shot-trails.webp",
-          "alt": "Real Color Ball Drop blade trails customization screen showing Classic Slash, Neon Blue, and Golden Spark",
-          "caption": "Unlockable Blade Trails"
+          "alt": "Gameplay capture of the Color Ball Drop Blade Trails customization screen showing Classic Slash, Neon Blue, and Golden Spark",
+          "caption": "8 Blade Trails: Unlock custom swipe arcs with coins or stars"
+        },
+        {
+          "src": "/assets/games/color-ball-drop/shot-win.webp",
+          "alt": "Gameplay capture of the Color Ball Drop level complete screen awarding three stars and coins",
+          "caption": "3-Star Clears: Earn coins inside the cut limit"
+        },
+        {
+          "src": "/assets/games/color-ball-drop/shot-home.webp",
+          "alt": "Gameplay capture of the Color Ball Drop home menu showing the four-ball rope emblem, coin and star totals, daily challenge, and quick resume",
+          "caption": "Home Menu: Daily challenges, streaks, and instant resume"
         }
       ]
     },
     "privacy": {
       "effectiveDate": "2026-11-22",
       "requiresVerification": true,
-      "summary": "Draft policy reflecting the current Color Ball Drop build: ads are disabled, Google Play Billing is not connected, optional analytics has no configured endpoint and defaults to off, and progress is stored locally on your device.",
-      "adsStatus": "Currently Disabled (release/ads/enabled=false). Fresh Android exports exclude native AdMob and UMP libraries. If advertising is enabled in a future release, this policy and the Google Play Data Safety form will be updated prior to publishing.",
+      "summary": "Pre-release privacy policy reflecting the current Android build of Color Ball Drop: Rope Puzzle. Advertising is disabled, in-app billing is not connected, optional analytics is turned off with no active server endpoint, and progress saves locally on your device.",
+      "adsStatus": "Disabled in the current Android build. AdMob and UMP libraries are excluded from current builds. If advertising is enabled in a future release, this policy and our Google Play Data Safety disclosures will be updated before publishing.",
       "billingStatus": "Not connected in the current build. No live in-app purchases are processed.",
-      "analyticsStatus": "Optional in-game analytics starts OFF by default and currently has no configured ingestion endpoint, so no telemetry is transmitted. If an optional analytics endpoint (such as PostHog) is enabled later, players must opt in and may disable it in Settings.",
-      "localSavesNote": "Campaign progress, star counts, unlocked trails, and settings are stored locally on your device. No user account, login, email, contacts, GPS, camera, or microphone access is requested.",
+      "analyticsStatus": "Optional in-game analytics starts off by default and currently has no active server endpoint, so no telemetry is transmitted. If an optional analytics provider is enabled in a future update, players must opt in and may disable it anytime in Settings.",
+      "localSavesNote": "Campaign progress, star counts, unlocked blade trails, and preferences are stored locally on your device. No user account, login, email, contacts, GPS, camera, or microphone access is requested.",
       "thirdPartySdks": [
         {
           "name": "Google Play Services (Distribution)",
           "purpose": "App distribution via Google Play once published.",
           "policyUrl": "https://policies.google.com/privacy",
-          "status": "Verify final release bundle"
+          "status": "Verified prior to release"
         },
         {
           "name": "Google AdMob / UMP",
-          "purpose": "Currently DISABLED and excluded from current no-ad Android exports. Verify before any future ad-enabled release.",
+          "purpose": "Excluded and disabled in current ad-free Android builds. Reviewed prior to any future ad-supported update.",
           "policyUrl": "https://developers.google.com/admob/android/next-gen/privacy/play-data-disclosure",
           "status": "Disabled in current build"
         },
         {
           "name": "Optional PostHog Analytics",
-          "purpose": "Starts OFF by default; no endpoint configured in current build (zero transmission).",
+          "purpose": "Starts off by default with no server endpoint configured in the current build, sending zero telemetry.",
           "policyUrl": "https://posthog.com/privacy",
-          "status": "Unconfigured / inactive"
+          "status": "Inactive in current build"
         }
       ],
-      "childrenAudienceNote": "REQUIRES VERIFICATION: Confirm target age group, IARC rating, and Google Play Families Policy status before publishing on Google Play Console."
+      "childrenAudienceNote": "Target age rating, IARC classification, and Google Play Families Policy disclosures are finalized prior to Google Play publication."
     },
     "seo": {
-      "title": "Color Ball Drop: Rope Puzzle — Offline Physics Puzzle for Android | Dev Affan",
-      "description": "Cut gold ropes, drop colored balls, and solve 100 offline 2D physics puzzles across 5 chapters in Color Ball Drop: Rope Puzzle by Dev Affan. Coming soon to Google Play."
+      "title": "Color Ball Drop: Rope Puzzle | Offline Physics Puzzle for Android | Dev Affan",
+      "description": "Cut gold ropes, drop colored balls, and solve 100 offline 2D physics puzzles across 5 chapters in Color Ball Drop: Rope Puzzle by Dev Affan."
     }
   },
   {
@@ -159,12 +159,12 @@
     "shortTitle": "Cut & Cascade",
     "shortPitch": "A separate future mobile game concept planned by Dev Affan after Color Ball Drop: Rope Puzzle launches on Google Play.",
     "longDescription": [
-      "Cut & Cascade is a separate future project on Dev Affan's roadmap, currently in early concept planning.",
-      "Our active development focus right now is completing and launching Color Ball Drop: Rope Puzzle for Android. Verified details, screenshots, and release plans for Cut & Cascade will be shared once active production begins."
+      "Cut & Cascade is a separate future project on Dev Affan's studio slate, currently in early concept planning.",
+      "Our active studio work right now is finishing and launching Color Ball Drop: Rope Puzzle for Android. Screenshots, mechanics, and release details for Cut & Cascade will be shared once active production begins."
     ],
     "status": "planned",
     "statusLabel": "Future Project",
-    "releaseNote": "Early concept stage — planned as a separate future Android release after Color Ball Drop.",
+    "releaseNote": "Early concept stage. Planned as a separate future Android game after Color Ball Drop.",
     "engine": "Godot",
     "platform": "Android (Planned)",
     "genre": "Casual Mobile (Planned)",
@@ -172,7 +172,7 @@
     "googlePlayUrl": "",
     "privacyUrl": "/privacy/cut-and-cascade/",
     "featured": false,
-    "accentColor": "#72E7CD",
+    "accentColor": "#5CE0C0",
     "accentColorSecondary": "#FFC83D",
     "chapters": [],
     "mechanics": [],
@@ -190,16 +190,16 @@
     "privacy": {
       "effectiveDate": "2026-11-22",
       "requiresVerification": true,
-      "summary": "Placeholder draft URL reserved for Cut & Cascade (a separate future game not yet in production). Full SDK and Data Safety disclosures will be written before any test or public release.",
-      "adsStatus": "Not applicable yet — game is in early concept stage.",
-      "billingStatus": "Not applicable yet — game is in early concept stage.",
-      "analyticsStatus": "Not applicable yet — game is in early concept stage.",
+      "summary": "Reserved privacy policy URL for Cut & Cascade, a separate future game not yet in active production. Complete SDK and Data Safety disclosures will be published before any test or public release.",
+      "adsStatus": "Not applicable yet. Game is in early concept stage.",
+      "billingStatus": "Not applicable yet. Game is in early concept stage.",
+      "analyticsStatus": "Not applicable yet. Game is in early concept stage.",
       "localSavesNote": "No playable public build has been released.",
       "thirdPartySdks": [],
-      "childrenAudienceNote": "REQUIRES VERIFICATION: Target age group and Google Play Families Policy disclosures will be finalized before development completes."
+      "childrenAudienceNote": "Target age rating and Google Play Families Policy disclosures will be completed before development finishes."
     },
     "seo": {
-      "title": "Cut & Cascade — Planned Future Android Game | Dev Affan",
+      "title": "Cut & Cascade | Future Android Game | Dev Affan",
       "description": "Cut & Cascade is a separate future mobile game planned by Dev Affan following Color Ball Drop: Rope Puzzle."
     }
   }

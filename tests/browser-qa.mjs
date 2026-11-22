@@ -171,9 +171,10 @@ async function runBrowserQa() {
   ];
 
   try {
-    console.log("1. Checking responsive layout (zero overflow & loaded images) at 1440px, 1024px, 768px, 430px, 390px, 360px...");
+    console.log("1. Checking responsive layout (zero overflow & loaded images) at 1440px, 1366px, 1024px, 768px, 430px, 390px, 360px...");
     for (const [label, w, h, mobile] of [
       ["desktop-1440", 1440, 900, false],
+      ["laptop-1366", 1366, 768, false],
       ["laptop-1024", 1024, 768, false],
       ["tablet-768", 768, 1024, false],
       ["mobile-430", 430, 932, true],
@@ -372,6 +373,164 @@ async function runBrowserQa() {
 
     assert.deepEqual(browser.consoleErrors, [], `Console errors: ${browser.consoleErrors.join("; ")}`);
     assert.deepEqual(browser.pageErrors, [], `Page errors: ${browser.pageErrors.join("; ")}`);
+
+    console.log("6. Verifying uncropped hero artwork across 1440x900, 1366x768, 768x1024, and 390x844...");
+    for (const [label, w, h, mobile] of [
+      ["desktop-1440", 1440, 900, false],
+      ["laptop-1366", 1366, 768, false],
+      ["tablet-768", 768, 1024, false],
+      ["mobile-390", 390, 844, true],
+    ]) {
+      await browser.setViewport(w, h, mobile);
+      await browser.goto(`${base}/`);
+      const heroCheck = await browser.evaluate(`(async () => {
+        const img = document.querySelector(".hero-stage__media img");
+        if (!img) return { found: false };
+        if (!img.complete) {
+          await new Promise((res) => { img.onload = res; img.onerror = res; });
+        }
+        const rect = img.getBoundingClientRect();
+        const style = getComputedStyle(img);
+        const natRatio = img.naturalWidth / img.naturalHeight;
+        const renRatio = rect.width / rect.height;
+        return {
+          found: true,
+          naturalWidth: img.naturalWidth,
+          objectFit: style.objectFit,
+          left: rect.left,
+          right: rect.right,
+          innerW: window.innerWidth,
+          ratioDiff: Math.abs(natRatio - renRatio) / natRatio,
+          foldBottom: Math.round(rect.bottom),
+        };
+      })()`);
+      assert.equal(heroCheck.found, true, `Hero stage artwork missing at ${label}`);
+      assert.ok(heroCheck.naturalWidth > 0, `Hero stage artwork failed to load at ${label}`);
+      assert.equal(heroCheck.objectFit, "contain", `Hero artwork must use object-fit: contain at ${label}`);
+      assert.ok(
+        heroCheck.left >= 0 && heroCheck.right <= heroCheck.innerW + 1,
+        `Hero artwork clipped horizontally at ${label}: left=${heroCheck.left}, right=${heroCheck.right}, innerW=${heroCheck.innerW}`
+      );
+      assert.ok(
+        heroCheck.ratioDiff < 0.03,
+        `Hero artwork distorted/cropped at ${label}: ratioDiff=${heroCheck.ratioDiff}`
+      );
+    }
+
+    console.log("7. Verifying horizontal scroll-snap gallery on 390x844 and 768x1024...");
+    for (const [label, w, h, mobile] of [
+      ["mobile-390", 390, 844, true],
+      ["tablet-768", 768, 1024, false],
+    ]) {
+      await browser.setViewport(w, h, mobile);
+      for (const route of ["/", "/games/color-ball-drop/"]) {
+        await browser.goto(`${base}${route}`);
+        const reelCheck = await browser.evaluate(`(() => {
+          const track = document.querySelector("[data-reel-track]");
+          const nextBtn = document.querySelector("[data-reel-next]");
+          if (!track || !nextBtn) return { found: false };
+          const style = getComputedStyle(track);
+          const overflow = track.scrollWidth > track.clientWidth;
+          nextBtn.click();
+          return new Promise((res) => {
+            setTimeout(() => {
+              res({
+                found: true,
+                overflow,
+                snap: style.scrollSnapType,
+                scrollLeft: track.scrollLeft,
+                controlsHidden: nextBtn.closest("[data-reel-controls]")?.hidden ?? false,
+              });
+            }, 350);
+          });
+        })()`);
+        assert.equal(reelCheck.found, true, `Reel missing on ${route} at ${label}`);
+        assert.equal(reelCheck.overflow, true, `Reel should overflow horizontally on ${route} at ${label}`);
+        assert.match(reelCheck.snap, /x/i, `Reel missing x scroll-snap on ${route} at ${label}`);
+        assert.equal(reelCheck.controlsHidden, false, `Reel buttons hidden on ${route} at ${label}`);
+        assert.ok(reelCheck.scrollLeft > 0, `Clicking next reel button did not scroll on ${route} at ${label}`);
+      }
+    }
+
+    console.log("8. Verifying WCAG AA computed contrast across Sapphire, Light, and Cobalt sections...");
+    await browser.setViewport(1440, 900, false);
+    for (const route of ["/", "/games/color-ball-drop/", "/contact/", "/privacy/color-ball-drop/"]) {
+      await browser.goto(`${base}${route}`);
+      const contrastFailures = await browser.evaluate(`(() => {
+        function parseRgba(str) {
+          const m = /rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)(?:,\\s*([\\d.]+))?\\)/.exec(str);
+          if (!m) return null;
+          return { r: +m[1], g: +m[2], b: +m[3], a: m[4] === undefined ? 1 : +m[4] };
+        }
+        function composite(fg, bg) {
+          const a = fg.a;
+          return {
+            r: Math.round(fg.r * a + bg.r * (1 - a)),
+            g: Math.round(fg.g * a + bg.g * (1 - a)),
+            b: Math.round(fg.b * a + bg.b * (1 - a)),
+            a: 1,
+          };
+        }
+        function getBg(el) {
+          const layers = [];
+          let cur = el;
+          while (cur) {
+            const c = parseRgba(getComputedStyle(cur).backgroundColor);
+            if (c && c.a > 0) layers.push(c);
+            if (c && c.a >= 0.99) break;
+            cur = cur.parentElement;
+          }
+          let base = { r: 7, g: 14, b: 32, a: 1 };
+          for (let i = layers.length - 1; i >= 0; i -= 1) {
+            base = composite(layers[i], base);
+          }
+          return base;
+        }
+        function relLum(c) {
+          const [r, g, b] = [c.r, c.g, c.b].map((v) => {
+            const s = v / 255;
+            return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+          });
+          return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        }
+        function ratio(c1, c2) {
+          const l1 = relLum(c1);
+          const l2 = relLum(c2);
+          return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+        }
+        const failures = [];
+        const targets = document.querySelectorAll("main h1, main h2, main h3, main p, main li, main a, main dt, main dd, main th, main td, footer p, footer a");
+        for (const el of targets) {
+          const st = getComputedStyle(el);
+          if (st.display === "none" || st.visibility === "hidden" || !el.textContent.trim()) continue;
+          const fgRaw = parseRgba(st.color);
+          if (!fgRaw) continue;
+          const bg = getBg(el);
+          const fg = fgRaw.a < 1 ? composite(fgRaw, bg) : fgRaw;
+          const cr = ratio(fg, bg);
+          const fsPx = parseFloat(st.fontSize);
+          const fw = parseInt(st.fontWeight, 10) || 400;
+          const isLarge = fsPx >= 24 || (fsPx >= 18.66 && fw >= 700);
+          const minRatio = isLarge ? 3.0 : 4.5;
+          if (cr < minRatio) {
+            failures.push({
+              tag: el.tagName,
+              text: el.textContent.trim().slice(0, 40),
+              cr: Number(cr.toFixed(2)),
+              minRatio,
+              fg: st.color,
+              bg: \`rgb(\${bg.r}, \${bg.g}, \${bg.b})\`,
+            });
+          }
+        }
+        return failures;
+      })()`);
+      assert.deepEqual(
+        contrastFailures,
+        [],
+        `WCAG AA contrast failures on ${route}: ${JSON.stringify(contrastFailures)}`
+      );
+    }
 
     console.log("ALL REAL BROWSER QA CHECKS PASSED.");
   } finally {

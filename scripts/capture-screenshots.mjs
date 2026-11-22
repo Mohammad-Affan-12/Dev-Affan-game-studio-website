@@ -98,13 +98,21 @@ async function run() {
   await send("Runtime.enable");
 
   const targets = [
-    { name: "home-desktop", route: "/", w: 1440, h: 900, mobile: false, full: true },
-    { name: "home-mobile", route: "/", w: 390, h: 844, mobile: true, full: true },
-    { name: "games-desktop", route: "/games/", w: 1440, h: 900, mobile: false, full: true },
-    { name: "games-mobile", route: "/games/", w: 390, h: 844, mobile: true, full: true },
-    { name: "color-ball-drop-desktop", route: "/games/color-ball-drop/", w: 1440, h: 900, mobile: false, full: true },
-    { name: "color-ball-drop-mobile", route: "/games/color-ball-drop/", w: 390, h: 844, mobile: true, full: true },
-    { name: "privacy-desktop", route: "/privacy/color-ball-drop/", w: 1440, h: 900, mobile: false, full: true },
+    { name: "home-390x844-fold", route: "/", w: 390, h: 844, mobile: true, full: false },
+    { name: "home-390x844-full", route: "/", w: 390, h: 844, mobile: true, full: true },
+    { name: "home-768x1024-fold", route: "/", w: 768, h: 1024, mobile: false, full: false },
+    { name: "home-768x1024-full", route: "/", w: 768, h: 1024, mobile: false, full: true },
+    { name: "home-1366x768-fold", route: "/", w: 1366, h: 768, mobile: false, full: false },
+    { name: "home-1366x768-full", route: "/", w: 1366, h: 768, mobile: false, full: true },
+    { name: "home-1440x900-fold", route: "/", w: 1440, h: 900, mobile: false, full: false },
+    { name: "home-1440x900-full", route: "/", w: 1440, h: 900, mobile: false, full: true },
+    { name: "color-ball-drop-1440x900-full", route: "/games/color-ball-drop/", w: 1440, h: 900, mobile: false, full: true },
+    { name: "color-ball-drop-390x844-full", route: "/games/color-ball-drop/", w: 390, h: 844, mobile: true, full: true },
+    { name: "games-1440x900-full", route: "/games/", w: 1440, h: 900, mobile: false, full: true },
+    { name: "games-390x844-full", route: "/games/", w: 390, h: 844, mobile: true, full: true },
+    { name: "contact-1440x900-full", route: "/contact/", w: 1440, h: 900, mobile: false, full: true },
+    { name: "contact-390x844-full", route: "/contact/", w: 390, h: 844, mobile: true, full: true },
+    { name: "privacy-1440x900-full", route: "/privacy/color-ball-drop/", w: 1440, h: 900, mobile: false, full: true },
   ];
 
   try {

@@ -1,8 +1,9 @@
 /**
  * Dev Affan Studio — Lightweight Client Runtime
- * - Accessible mobile navigation
+ * - Accessible mobile navigation drawer
  * - Progressive game catalog filter
- * - Privacy-conscious UTM capture & Google Play referrer pass-through
+ * - Accessible horizontal scroll-snap screenshot reel controls
+ * - Cookieless UTM capture & Google Play referrer pass-through
  * - Standardized Object-Action event tracking (GA4-ready when configured)
  */
 
@@ -170,6 +171,54 @@
   }
 
   /**
+   * Accessible Horizontal Scroll-Snap Screenshot Reel Controls
+   */
+  function initScreenshotReels() {
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    document.querySelectorAll("[data-reel]").forEach((reel) => {
+      const track = reel.querySelector("[data-reel-track]");
+      const controls = reel.querySelector("[data-reel-controls]");
+      const prevBtn = reel.querySelector("[data-reel-prev]");
+      const nextBtn = reel.querySelector("[data-reel-next]");
+      if (!track || !prevBtn || !nextBtn) return;
+
+      function getStepWidth() {
+        const firstItem = track.querySelector("[data-reel-item]");
+        if (!firstItem) return Math.round(track.clientWidth * 0.78);
+        const styles = window.getComputedStyle(track);
+        const gap = parseFloat(styles.columnGap || styles.gap || "16") || 16;
+        return Math.round(firstItem.getBoundingClientRect().width + gap);
+      }
+
+      function syncButtons() {
+        const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+        const hasOverflow = maxScroll > 4;
+        if (controls) {
+          controls.hidden = !hasOverflow;
+        }
+        prevBtn.disabled = !hasOverflow || track.scrollLeft <= 2;
+        nextBtn.disabled = !hasOverflow || track.scrollLeft >= maxScroll - 2;
+      }
+
+      function scrollByDirection(direction) {
+        const behavior = reducedMotionQuery.matches ? "auto" : "smooth";
+        track.scrollBy({
+          left: direction * getStepWidth(),
+          behavior,
+        });
+      }
+
+      prevBtn.addEventListener("click", () => scrollByDirection(-1));
+      nextBtn.addEventListener("click", () => scrollByDirection(1));
+      track.addEventListener("scroll", syncButtons, { passive: true });
+      window.addEventListener("resize", syncButtons, { passive: true });
+
+      syncButtons();
+    });
+  }
+
+  /**
    * Track outbound Google Play CTA clicks and game page views.
    */
   function initAnalyticsListeners() {
@@ -196,5 +245,6 @@
   decorateGooglePlayLinks();
   initMobileNav();
   initCatalogFilter();
+  initScreenshotReels();
   initAnalyticsListeners();
 })();

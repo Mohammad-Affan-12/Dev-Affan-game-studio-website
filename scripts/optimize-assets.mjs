@@ -95,6 +95,8 @@ async function run() {
     // Promotional 2.5D Color Ball Drop studio artwork (WebP)
     { input: path.join(srcDir, "color-ball-drop-hero.jpg"), mime: "image/jpeg", out: path.join(artOutDir, "color-ball-drop-hero.webp"), width: 1600, height: 900, quality: 0.84 },
     { input: path.join(srcDir, "color-ball-drop-hero.jpg"), mime: "image/jpeg", out: path.join(artOutDir, "color-ball-drop-hero-960.webp"), width: 960, height: 540, quality: 0.82 },
+    { input: path.join(srcDir, "color-ball-drop-hero.jpg"), mime: "image/jpeg", out: path.join(artOutDir, "color-ball-drop-hero-stage.webp"), width: 808, height: 900, cropLeftRatio: 0.495, quality: 0.85 },
+    { input: path.join(srcDir, "color-ball-drop-hero.jpg"), mime: "image/jpeg", out: path.join(artOutDir, "color-ball-drop-hero-stage-540.webp"), width: 485, height: 540, cropLeftRatio: 0.495, quality: 0.83 },
     { input: path.join(srcDir, "color-ball-drop-cover.jpg"), mime: "image/jpeg", out: path.join(artOutDir, "color-ball-drop-cover.webp"), width: 1280, height: 720, quality: 0.84 },
     { input: path.join(srcDir, "color-ball-drop-cover.jpg"), mime: "image/jpeg", out: path.join(artOutDir, "color-ball-drop-cover-768.webp"), width: 768, height: 432, quality: 0.82 },
     { input: path.join(srcDir, "color-ball-drop-mechanics.jpg"), mime: "image/jpeg", out: path.join(artOutDir, "color-ball-drop-mechanics.webp"), width: 1280, height: 720, quality: 0.84 },
@@ -113,17 +115,21 @@ async function run() {
       const b64 = fs.readFileSync(job.input).toString("base64");
       const dataUri = `data:${job.mime};base64,${b64}`;
 
+      const cropLeftRatio = Number(job.cropLeftRatio || 0);
       const res = await send("Runtime.evaluate", {
         awaitPromise: true,
         returnByValue: true,
         expression: `new Promise((resolve, reject) => {
           const img = new Image();
           img.onload = () => {
+            const sx = Math.round(img.naturalWidth * ${cropLeftRatio});
+            const sw = img.naturalWidth - sx;
+            const sh = img.naturalHeight;
             const canvas = document.createElement('canvas');
             canvas.width = ${job.width};
             canvas.height = ${job.height};
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, ${job.width}, ${job.height});
+            ctx.drawImage(img, sx, 0, sw, sh, 0, 0, ${job.width}, ${job.height});
             resolve(canvas.toDataURL('image/webp', ${job.quality}));
           };
           img.onerror = () => reject(new Error('Image load failed'));

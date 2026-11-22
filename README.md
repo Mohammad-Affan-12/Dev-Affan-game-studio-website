@@ -6,9 +6,9 @@ Official static website for **Dev Affan**, an independent mobile game studio cra
 
 - **Framework:** Zero-dependency Node.js 18+ static site generator (`scripts/build.mjs`)
 - **Single-source-of-truth catalog:** `data/games.json` + `data/site.json`
-- **Design system:** `src/styles/tokens.css` → `src/styles/main.css` (2.5D casual puzzle palette: midnight navy `#0B1224`, deep blue `#132B4F`, electric cyan `#36D5F4`, mint teal `#72E7CD`, sunshine gold `#FFC83D`, coral red `#FF6276`, paired with `Fredoka` + `Nunito`)
+- **Design system:** `src/styles/tokens.css` → `src/styles/main.css` (multi-surface sapphire `#070E20`, cobalt `#122952`, and balanced light `#F3F7FD` gameplay showcase tokens, paired with gold `#FFC83D`, blade cyan `#36D5F4`, and `Fredoka` + `Nunito`)
 - **Optimized visual assets:**
-  - Original 2.5D Color Ball Drop promotional WebP artwork in `src/assets/art/` (source originals in `assets-source/`)
+  - Original 2.5D Color Ball Drop promotional WebP artwork in `src/assets/art/` (including uncropped `color-ball-drop-hero-stage.webp` for all viewport sizes; source originals in `assets-source/`)
   - Authentic Color Ball Drop gameplay screenshots (portrait WebP) and gameplay video (`gameplay-level-3.mp4`) in `src/assets/games/color-ball-drop/`
   - 1200×630 Open Graph PNG in `src/assets/og-studio.png`
 - **Minimal vanilla JavaScript:** `src/scripts/main.js` (mobile drawer, progressive catalog filter, cookieless `sessionStorage` UTM capture, Google Play `referrer` pass-through, and optional analytics dispatch)

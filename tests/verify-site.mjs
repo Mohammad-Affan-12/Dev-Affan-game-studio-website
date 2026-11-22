@@ -114,7 +114,25 @@ async function runTests() {
     for (const tag of imgTags) {
       assert.match(tag, /\balt="/i, `${rel}: <img> missing alt attribute: ${tag}`);
     }
+
+    assert.doesNotMatch(
+      html,
+      /data\/site\.json|emailVerified|REQUIRES VERIFICATION|release\/ads\/enabled/i,
+      `${rel}: public HTML leaked internal developer flags or file paths`
+    );
+    assert.doesNotMatch(
+      html,
+      /aria-disabled="true"/i,
+      `${rel}: should not render disabled pseudo-buttons`
+    );
   }
+
+  const contactHtmlPublic = fs.readFileSync(path.join(distDir, "contact", "index.html"), "utf8");
+  assert.doesNotMatch(
+    contactHtmlPublic,
+    /github\.com/i,
+    "contact/index.html must not present GitHub repository as a public support channel"
+  );
 
   assert.ok(fs.existsSync(path.join(distDir, "robots.txt")), "Missing robots.txt");
   assert.ok(fs.existsSync(path.join(distDir, "sitemap.xml")), "Missing sitemap.xml");
@@ -146,6 +164,8 @@ async function runTests() {
       "/styles/main.css",
       "/scripts/main.js",
       "/assets/art/color-ball-drop-hero.webp",
+      "/assets/art/color-ball-drop-hero-stage.webp",
+      "/assets/art/color-ball-drop-hero-stage-540.webp",
       "/assets/games/color-ball-drop/shot-level-01.webp",
       "/assets/games/color-ball-drop/gameplay-level-3.mp4",
       "/robots.txt",

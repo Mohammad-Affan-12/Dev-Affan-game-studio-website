@@ -66,6 +66,8 @@ const ICONS = {
   menu: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>`,
   play: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3.87v16.26a1 1 0 0 0 1.5.86l14.07-8.13a1 1 0 0 0 0-1.72L6.5 3.01A1 1 0 0 0 5 3.87Z"/></svg>`,
   arrowRight: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>`,
+  chevronLeft: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>`,
+  chevronRight: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`,
   levels: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`,
   physics: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="17" r="3"/><path d="M4 20 20 4"/></svg>`,
   daily: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
@@ -106,16 +108,7 @@ function renderStoreCta(game, location, variant = "primary") {
     </a>`;
   }
 
-  if (game.status === "planned") {
-    return `<span class="btn btn--secondary" aria-disabled="true" title="Planned future title — not yet in production">
-      <span>Planned Future Release</span>
-    </span>`;
-  }
-
-  return `<span class="btn btn--secondary" aria-disabled="true" title="Google Play Store link will go live at launch">
-    ${ICONS.play}
-    <span>Coming Soon on Google Play</span>
-  </span>`;
+  return "";
 }
 
 function renderStatusPill(game, extraClass = "") {
@@ -133,7 +126,7 @@ function renderStatusPill(game, extraClass = "") {
       ? "Available on Google Play"
       : game.status === "planned"
         ? "Future Project"
-        : "Coming Soon");
+        : "Coming Soon on Google Play");
   return `<span class="${cls}"><span class="status-dot" aria-hidden="true"></span>${escapeHtml(label)}</span>`;
 }
 
@@ -142,6 +135,36 @@ function renderFeatureIcon(iconName, idx) {
   const cls = palette[idx % palette.length];
   const svg = ICONS[iconName] || ICONS.physics;
   return `<div class="pillar-icon${cls ? ` ${cls}` : ""}">${svg}</div>`;
+}
+
+function renderScreenshotReel(screenshots, { layout = "four", label = "Gameplay screenshots" } = {}) {
+  if (!Array.isArray(screenshots) || screenshots.length === 0) return "";
+  const trackMod = layout === "six" ? "shot-reel__track--six" : "shot-reel__track--four";
+  return `<div class="shot-reel" data-reel>
+      <div class="shot-reel__track ${trackMod}" data-reel-track tabindex="0" role="region" aria-label="${escapeHtml(label)}">
+        ${screenshots
+          .map(
+            (shot) => `<figure class="shot-reel__item" data-reel-item>
+          <div class="phone-shot__frame">
+            <img src="${escapeHtml(shot.src)}" alt="${escapeHtml(shot.alt)}" width="540" height="960" loading="lazy">
+          </div>
+          <figcaption>${escapeHtml(shot.caption || shot.alt)}</figcaption>
+        </figure>`
+          )
+          .join("\n        ")}
+      </div>
+    </div>`;
+}
+
+function renderReelButtons(labelPrefix = "gameplay screenshots") {
+  return `<div class="reel-controls" data-reel-controls>
+      <button type="button" class="reel-btn" data-reel-prev aria-label="Scroll ${escapeHtml(labelPrefix)} left">
+        ${ICONS.chevronLeft}
+      </button>
+      <button type="button" class="reel-btn" data-reel-next aria-label="Scroll ${escapeHtml(labelPrefix)} right">
+        ${ICONS.chevronRight}
+      </button>
+    </div>`;
 }
 
 /* ==========================================================================
@@ -191,6 +214,7 @@ function renderLayout({
   const mainCssQuery = assetVersions.mainCss ? `?v=${assetVersions.mainCss}` : "";
   const mainJsQuery = assetVersions.mainJs ? `?v=${assetVersions.mainJs}` : "";
 
+  const activeGame = games.find((g) => g.featured) || games[0];
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/games/", label: "Games" },
@@ -209,21 +233,10 @@ function renderLayout({
     .join("\n          ");
 
   const configuredSocials = Object.entries(site.social || {}).filter(([, url]) => Boolean(url));
-  const socialLinksHtml =
-    configuredSocials.length > 0
-      ? configuredSocials
-          .map(
-            ([network, url]) =>
-              `<li><a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(network.charAt(0).toUpperCase() + network.slice(1))}</a></li>`
-          )
-          .join("\n            ")
-      : `<li><a href="${escapeHtml(site.githubUrl)}" target="_blank" rel="noopener noreferrer">GitHub</a></li>`;
-
-  const gameFooterLinks = games
+  const socialFooterHtml = configuredSocials
     .map(
-      (game) =>
-        `<li><a href="/games/${escapeHtml(game.slug)}/">${escapeHtml(game.shortTitle || game.title)}</a></li>
-            <li><a href="/privacy/${escapeHtml(game.slug)}/">${escapeHtml(game.shortTitle || game.title)} Privacy Policy</a></li>`
+      ([network, url]) =>
+        `<li><a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(network.charAt(0).toUpperCase() + network.slice(1))}</a></li>`
     )
     .join("\n            ");
 
@@ -242,7 +255,7 @@ function renderLayout({
   <meta name="description" content="${escapeHtml(description)}">
   ${noIndex ? '<meta name="robots" content="noindex, follow">' : ""}
   ${canonicalUrl ? `<link rel="canonical" href="${escapeHtml(canonicalUrl)}">` : ""}
-  <meta name="theme-color" content="#0b1224">
+  <meta name="theme-color" content="#070e20">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 
   <meta property="og:site_name" content="${escapeHtml(site.studioName)}">
@@ -310,7 +323,7 @@ function renderLayout({
     ${content}
   </main>
 
-  <footer class="site-footer">
+  <footer class="site-footer surface--sapphire">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-col">
@@ -318,15 +331,22 @@ function renderLayout({
             ${ICONS.brand}
             <span>${escapeHtml(site.studioName)}</span>
           </a>
-          <p style="margin-top: var(--space-4);">${escapeHtml(site.tagline)}</p>
+          <p class="footer-tagline">${escapeHtml(site.tagline)}</p>
         </div>
 
         <div class="footer-col">
-          <p class="footer-heading">Games &amp; Privacy</p>
+          <p class="footer-heading">Games</p>
           <ul class="footer-links">
-            <li><a href="/games/">Our Games</a></li>
-            ${gameFooterLinks}
-            <li><a href="/privacy/">Website Privacy Policy</a></li>
+            <li><a href="/games/${escapeHtml(activeGame.slug)}/">${escapeHtml(activeGame.title)}</a></li>
+            <li><a href="/games/">All Games &amp; Roadmap</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <p class="footer-heading">Privacy</p>
+          <ul class="footer-links">
+            <li><a href="/privacy/${escapeHtml(activeGame.slug)}/">${escapeHtml(activeGame.shortTitle || activeGame.title)} Privacy Policy</a></li>
+            <li><a href="/privacy/">Studio &amp; Game Policies</a></li>
           </ul>
         </div>
 
@@ -335,14 +355,14 @@ function renderLayout({
           <ul class="footer-links">
             <li><a href="/about/">About Studio</a></li>
             <li><a href="/contact/">Contact</a></li>
-            ${socialLinksHtml}
+            ${socialFooterHtml}
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom">
         <span>&copy; ${new Date().getFullYear()} ${escapeHtml(site.studioName)}. All rights reserved.</span>
-        <span>Original offline physics puzzle games for Android &amp; Google Play.</span>
+        <span>Offline physics puzzle games built for Android &amp; Google Play.</span>
       </div>
     </div>
   </footer>
@@ -368,45 +388,35 @@ function buildHomePage(site, games, assetVersions) {
     name: site.studioName,
     description: site.description,
     ...(baseUrl ? { url: `${baseUrl}/` } : {}),
-    sameAs: [site.githubUrl, ...configuredSocials.map(([, url]) => url)],
+    ...(configuredSocials.length > 0 ? { sameAs: configuredSocials.map(([, url]) => url) } : {}),
   };
 
-  const featuresHtml = (featured.features || [])
-    .map(
-      (feat, idx) => `<div class="feature-item">
-            ${renderFeatureIcon(feat.icon, idx)}
-            <div>
-              <h3>${escapeHtml(feat.title)}</h3>
-              <p>${escapeHtml(feat.description)}</p>
-            </div>
-          </div>`
-    )
-    .join("\n          ");
-
   const homeShots = (featured.media?.screenshots || []).slice(0, 4);
-  const screenshotsHtml = homeShots
-    .map(
-      (shot) => `<figure class="phone-shot">
-            <div class="phone-shot__frame">
-              <img src="${escapeHtml(shot.src)}" alt="${escapeHtml(shot.alt)}" width="540" height="960" loading="lazy">
-            </div>
-            <figcaption>${escapeHtml(shot.caption || shot.alt)}</figcaption>
-          </figure>`
-    )
-    .join("\n          ");
-
   const mechanicsPreview = (featured.mechanics || [])
     .slice(0, 8)
     .map((m) => `<li>${escapeHtml(m)}</li>`)
     .join("\n            ");
 
+  const storeButton = renderStoreCta(featured, "homepage-hero", "primary");
+  const heroActionsHtml = storeButton
+    ? `${storeButton}
+          <a class="btn btn--secondary" href="/games/${escapeHtml(featured.slug)}/">
+            <span>Explore ${escapeHtml(featured.shortTitle || featured.title)}</span>
+            ${ICONS.arrowRight}
+          </a>`
+    : `<a class="btn btn--primary" href="/games/${escapeHtml(featured.slug)}/">
+            <span>Explore ${escapeHtml(featured.shortTitle || featured.title)}</span>
+            ${ICONS.arrowRight}
+          </a>
+          <a class="btn btn--secondary" href="#gameplay-showcase">Watch Real Gameplay</a>`;
+
   const futureSection =
     futureGames.length > 0
-      ? `<section class="section">
+      ? `<section class="section surface--sapphire">
       <div class="container">
         <div class="section-header">
-          <h2>What Comes Next</h2>
-          <p>After ${escapeHtml(featured.shortTitle || featured.title)} launches on Google Play, ${escapeHtml(site.studioName)} plans to expand into new original Android titles.</p>
+          <h2>Next on the Studio Slate</h2>
+          <p>Our full development focus is launching ${escapeHtml(featured.title)} first. Separate future projects sit on the roadmap below.</p>
         </div>
 
         ${futureGames
@@ -426,172 +436,191 @@ function buildHomePage(site, games, assetVersions) {
         </div>`
           )
           .join("\n        ")}
+
+        <div class="cta-panel">
+          <div>
+            <h2>Explore ${escapeHtml(featured.title)}</h2>
+            <p style="margin-top: var(--space-3);">Watch the full capture, browse all 5 chapters, and review game details ahead of Google Play release.</p>
+          </div>
+          <div class="actions">
+            ${
+              storeButton ||
+              `<a class="btn btn--primary" href="/games/${escapeHtml(featured.slug)}/">
+              <span>Open Game Page</span>
+              ${ICONS.arrowRight}
+            </a>`
+            }
+            <a class="btn btn--light-on-dark" href="/games/">All Games</a>
+          </div>
+        </div>
       </div>
     </section>`
       : "";
 
-  const finalCtaButtons =
-    configuredSocials.length > 0
-      ? `<a class="btn btn--primary" href="/games/${escapeHtml(featured.slug)}/">
-            <span>Discover ${escapeHtml(featured.shortTitle || featured.title)}</span>
-            ${ICONS.arrowRight}
-          </a>
-          <a class="btn btn--secondary" href="${escapeHtml(configuredSocials[0][1])}" target="_blank" rel="noopener noreferrer">
-            <span>Follow on ${escapeHtml(configuredSocials[0][0].charAt(0).toUpperCase() + configuredSocials[0][0].slice(1))}</span>
-            ${ICONS.external}
-          </a>`
-      : `<a class="btn btn--primary" href="/games/${escapeHtml(featured.slug)}/">
-            <span>Discover ${escapeHtml(featured.shortTitle || featured.title)}</span>
-            ${ICONS.arrowRight}
-          </a>
-          <a class="btn btn--secondary" href="/games/">Explore Our Games</a>`;
-
   const content = `
-    <section class="hero-cinematic">
-      <div class="hero-cinematic__media">
-        <img
-          src="/assets/art/color-ball-drop-hero.webp"
-          srcset="/assets/art/color-ball-drop-hero-960.webp 960w, /assets/art/color-ball-drop-hero.webp 1600w"
-          sizes="100vw"
-          alt="Promotional 2.5D illustration for Color Ball Drop showing glossy red, blue, yellow, green, and steel balls suspended by gold ropes above glowing matching buckets"
-          width="1600"
-          height="900"
-          loading="eager"
-          fetchpriority="high"
-        >
-        <div class="hero-cinematic__scrim" aria-hidden="true"></div>
-      </div>
+    <section class="hero-stage surface--sapphire">
+      <div class="container">
+        <div class="hero-stage__grid">
+          <div class="hero-stage__copy">
+            <h1>Cut the Rope. <span class="hero-highlight">Drop the Balls.</span> Match Every Bucket.</h1>
+            <p class="hero-lead">${escapeHtml(featured.title)} brings 100 offline physics puzzles to Android. Slice gold ropes, trigger wooden contraptions, and guide every ball home.</p>
 
-      <div class="container hero-cinematic__inner">
-        <div class="hero-cinematic__copy">
-          <h1>Cut the Rope. <span class="hero-highlight">Drop the Balls.</span> Solve the Puzzle.</h1>
-          <p class="hero-lead">Master colorful physics puzzles where every cut changes the outcome — starting with <strong>${escapeHtml(featured.title)}</strong> on Android.</p>
+            <div class="actions">
+              ${heroActionsHtml}
+            </div>
 
-          <div class="actions">
-            <a class="btn btn--primary" href="/games/${escapeHtml(featured.slug)}/">
-              <span>Discover ${escapeHtml(featured.shortTitle || featured.title)}</span>
-              ${ICONS.arrowRight}
-            </a>
-            <a class="btn btn--secondary" href="/games/">Explore Our Games</a>
+            <div class="hero-status-row">
+              ${renderStatusPill(featured)}
+              <span>100 Offline Levels &middot; 5 Chapters &middot; Portrait Play</span>
+            </div>
           </div>
 
-          <div class="hero-status-row">
-            ${renderStatusPill(featured)}
-            <span>100 Offline Levels &middot; Android &middot; Google Play</span>
+          <div class="hero-stage__art">
+            <div class="hero-stage__media">
+              <img
+                src="/assets/art/color-ball-drop-hero-stage.webp"
+                srcset="/assets/art/color-ball-drop-hero-stage-540.webp 485w, /assets/art/color-ball-drop-hero-stage.webp 808w"
+                sizes="(max-width: 959px) 92vw, 480px"
+                alt="Promotional 2.5D illustration for Color Ball Drop showing glossy red, blue, yellow, green, and steel balls suspended on wooden beams and gold ropes above matching glowing buckets"
+                width="808"
+                height="900"
+                loading="eager"
+                fetchpriority="high"
+              >
+            </div>
+            <span class="media-note">Promotional Artwork</span>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section section--surface">
+    <section id="gameplay-showcase" class="section surface--light">
       <div class="container">
-        <div class="spotlight-grid">
-          <div class="spotlight-art">
-            ${renderGameArtwork(featured, { loading: "lazy" })}
+        <div class="section-header">
+          <h2>Watch ${escapeHtml(featured.shortTitle || featured.title)} in Motion</h2>
+          <p>Real gameplay recorded directly from the Android Godot build, showing swipe cuts, chain reactions, and color matching.</p>
+        </div>
+
+        <div class="gameplay-stage">
+          <div class="video-column">
+            <div class="video-phone">
+              <video controls playsinline preload="metadata" aria-label="Real ${escapeHtml(featured.shortTitle || featured.title)} Chapter 1 gameplay video" poster="${escapeHtml(featured.media.videoPoster)}">
+                <source src="${escapeHtml(featured.media.videoUrl)}" type="${escapeHtml(getVideoMimeType(featured.media.videoUrl))}">
+                Your browser does not support embedded gameplay video.
+              </video>
+            </div>
+            <span class="media-note">Actual Android Build Capture</span>
           </div>
 
-          <div class="spotlight-copy">
-            <h2>${escapeHtml(featured.title)}</h2>
-            <p>${escapeHtml(featured.shortPitch)}</p>
+          <div class="gameplay-breakdown">
+            <ol class="play-beats">
+              <li class="play-beat">
+                <span class="play-beat__num play-beat__num--gold" aria-hidden="true">1</span>
+                <div class="play-beat__body">
+                  <h3>Read the contraption before cutting</h3>
+                  <p>Check rope tension, wooden supports, portal exits, and bucket order first. Distinct shape symbols on every ball and bucket keep colors unmistakable.</p>
+                </div>
+              </li>
+              <li class="play-beat">
+                <span class="play-beat__num play-beat__num--cobalt" aria-hidden="true">2</span>
+                <div class="play-beat__body">
+                  <h3>Time every swipe for clean cascades</h3>
+                  <p>Slice gold ropes and wooden beams to bounce balls off bumper pins, tip seesaw bridges, pass through dye rings, and thread color filter gates.</p>
+                </div>
+              </li>
+              <li class="play-beat">
+                <span class="play-beat__num play-beat__num--mint" aria-hidden="true">3</span>
+                <div class="play-beat__body">
+                  <h3>Score 3 stars and unlock blade trails</h3>
+                  <p>Clear puzzles within the cut limit to earn coins, keep daily challenge streaks alive, and unlock 8 swipe blade trails offline.</p>
+                </div>
+              </li>
+            </ol>
 
-            <ul class="mechanics-chips" aria-label="Core gameplay mechanics">
-              ${mechanicsPreview}
-            </ul>
+            <dl class="proof-strip" aria-label="Game highlights">
+              <div class="proof-stat">
+                <dt>Offline Levels</dt>
+                <dd>100</dd>
+              </div>
+              <div class="proof-stat">
+                <dt>Chapters</dt>
+                <dd>5</dd>
+              </div>
+              <div class="proof-stat">
+                <dt>Contraptions</dt>
+                <dd>12</dd>
+              </div>
+              <div class="proof-stat">
+                <dt>Blade Trails</dt>
+                <dd>8</dd>
+              </div>
+            </dl>
 
             <div class="actions">
-              <a class="btn btn--primary" href="/games/${escapeHtml(featured.slug)}/">
-                <span>View Game Page</span>
+              <a class="btn btn--secondary" href="/games/${escapeHtml(featured.slug)}/">
+                <span>See All 5 Chapters &amp; Specs</span>
                 ${ICONS.arrowRight}
               </a>
-              ${renderStoreCta(featured, "homepage-spotlight", "secondary")}
+              <a class="text-action-link" href="#home-gallery">Browse Gameplay Screens</a>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section">
-      <div class="container">
-        <div class="section-header">
-          <h2>How to Play</h2>
-          <p>Simple to pick up in seconds, packed with clever physics twists across 5 chapters.</p>
-        </div>
-
-        <div class="steps-grid">
-          <div class="step-card">
-            <div class="step-badge step-badge--gold" aria-hidden="true">1</div>
-            <h3>Plan your cuts</h3>
-            <p>Read the ropes, wooden beams, seesaw bridges, and portal pairs before you make your move.</p>
-          </div>
-          <div class="step-card">
-            <div class="step-badge step-badge--cyan" aria-hidden="true">2</div>
-            <h3>Release the balls</h3>
-            <p>Swipe across gold ropes and wooden supports to send red, blue, yellow, green, and steel balls tumbling.</p>
-          </div>
-          <div class="step-card">
-            <div class="step-badge step-badge--coral" aria-hidden="true">3</div>
-            <h3>Match every color</h3>
-            <p>Guide each ball into its matching bucket — wrong-color drops can fail the level, while clean runs earn 3 stars.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section--surface">
+    <section id="home-gallery" class="section surface--light-alt" data-reel>
       <div class="container">
         <div class="section-header section-header--split">
           <div>
-            <h2>Inside ${escapeHtml(featured.shortTitle || featured.title)}</h2>
-            <p style="margin-top: var(--space-3);">Real features built into the current Android game.</p>
+            <h2>Screens from the Actual Game</h2>
+            <p style="margin-top: var(--space-3);">Portrait captures straight from playable levels, chapter select, and blade trail unlocks.</p>
           </div>
-          <a class="btn btn--ghost" href="/games/${escapeHtml(featured.slug)}/">
-            <span>All 12 Mechanics &amp; Chapters</span>
-            ${ICONS.arrowRight}
-          </a>
+          <div class="section-header__actions">
+            ${renderReelButtons("Color Ball Drop screenshots")}
+            <a class="text-action-link" href="/games/${escapeHtml(featured.slug)}/#screenshots">
+              <span>See All 6 Captures</span>
+              ${ICONS.arrowRight}
+            </a>
+          </div>
         </div>
 
-        <div class="features-grid">
-          ${featuresHtml}
+        <div class="shot-reel__track shot-reel__track--four" data-reel-track tabindex="0" role="region" aria-label="Color Ball Drop gameplay screenshots">
+          ${homeShots
+            .map(
+              (shot) => `<figure class="shot-reel__item" data-reel-item>
+            <div class="phone-shot__frame">
+              <img src="${escapeHtml(shot.src)}" alt="${escapeHtml(shot.alt)}" width="540" height="960" loading="lazy">
+            </div>
+            <figcaption>${escapeHtml(shot.caption || shot.alt)}</figcaption>
+          </figure>`
+            )
+            .join("\n          ")}
         </div>
       </div>
     </section>
 
-    <section class="section">
-      <div class="container">
-        <div class="section-header section-header--split">
-          <div>
-            <h2>Real Gameplay Screenshots</h2>
-            <p style="margin-top: var(--space-3);">Captured directly from the actual Godot build of ${escapeHtml(featured.shortTitle || featured.title)} — never mocked up.</p>
-          </div>
-          <a class="btn btn--ghost" href="/games/${escapeHtml(featured.slug)}/#screenshots">
-            <span>See Full Gallery &amp; Video</span>
-            ${ICONS.arrowRight}
-          </a>
-        </div>
-
-        <div class="phone-gallery">
-          ${screenshotsHtml}
-        </div>
-      </div>
-    </section>
-
-    <section class="section section--accent-band">
+    <section class="section surface--cobalt">
       <div class="container">
         <div class="studio-split">
           <div class="spotlight-copy">
-            <h2>Crafted by ${escapeHtml(site.studioName)}</h2>
-            <p>${escapeHtml(site.studioName)} is an independent mobile game studio creating original casual physics puzzle games for Android and Google Play.</p>
-            <p>We focus on responsive touch controls, readable puzzle design, offline playability, and transparent communication about every game we ship.</p>
+            <h2>Twelve Contraptions, One Thumb</h2>
+            <p>${escapeHtml(site.studioName)} builds focused Android physics games with tactile touch controls, crisp readability, and zero internet dependency for core levels.</p>
+            <ul class="mechanics-chips" aria-label="Featured physics contraptions">
+              ${mechanicsPreview}
+            </ul>
             <div class="actions">
-              <a class="btn btn--secondary" href="/about/">About Studio</a>
-              <a class="btn btn--ghost" href="/contact/">Contact</a>
+              <a class="btn btn--primary" href="/games/${escapeHtml(featured.slug)}/">
+                <span>Explore ${escapeHtml(featured.shortTitle || featured.title)}</span>
+                ${ICONS.arrowRight}
+              </a>
+              <a class="btn btn--light-on-dark" href="/about/">About ${escapeHtml(site.studioName)}</a>
             </div>
           </div>
 
           <div class="spotlight-art">
             <img
               src="/assets/art/color-ball-drop-mechanics.webp"
-              alt="Promotional 2.5D illustration of Color Ball Drop physics contraptions including wooden seesaw bridge, bumper pins, portal ring, and color filter gate"
+              alt="${escapeHtml(featured.media.conceptMechanicsAlt)}"
               width="1280"
               height="720"
               loading="lazy"
@@ -603,27 +632,13 @@ function buildHomePage(site, games, assetVersions) {
     </section>
 
     ${futureSection}
-
-    <section class="section">
-      <div class="container">
-        <div class="cta-panel">
-          <div>
-            <h2>Ready to Play ${escapeHtml(featured.shortTitle || featured.title)}?</h2>
-            <p style="margin-top: var(--space-3);">Watch real gameplay, browse all 5 chapters, and check back for the Google Play launch link.</p>
-          </div>
-          <div class="actions">
-            ${finalCtaButtons}
-          </div>
-        </div>
-      </div>
-    </section>
   `;
 
   return renderLayout({
     site,
     games,
     assetVersions,
-    title: `${site.studioName} — Indie Mobile Puzzle Game Studio`,
+    title: `${site.studioName} | Indie Android Physics Puzzle Studio`,
     description: site.description,
     currentPath: "/",
     jsonLd,
@@ -656,6 +671,11 @@ function buildGamesIndexPage(site, games, assetVersions) {
         </article>`;
       }
 
+      const storeButton = renderStoreCta(game, "catalog-card", "secondary");
+      const secondaryAction =
+        storeButton ||
+        `<a class="btn btn--secondary" href="/games/${escapeHtml(game.slug)}/#gameplay-video">Watch Gameplay</a>`;
+
       return `<article class="game-card${game.featured ? " game-card--featured" : ""}" data-game-status="${escapeHtml(game.status)}">
           <div class="game-card__media">
             ${renderGameArtwork(game, { loading: "eager" })}
@@ -672,7 +692,7 @@ function buildGamesIndexPage(site, games, assetVersions) {
                 <span>Discover ${escapeHtml(game.shortTitle || game.title)}</span>
                 ${ICONS.arrowRight}
               </a>
-              ${renderStoreCta(game, "catalog-card", "secondary")}
+              ${secondaryAction}
             </div>
           </div>
         </article>`;
@@ -680,13 +700,17 @@ function buildGamesIndexPage(site, games, assetVersions) {
     .join("\n        ");
 
   const content = `
-    <section class="section">
+    <section class="section surface--sapphire section--compact">
       <div class="container">
-        <div class="section-header">
+        <div class="section-header" style="margin-bottom: 0;">
           <h1>Our Games</h1>
-          <p>Original Android games from ${escapeHtml(site.studioName)} — featuring <strong>${escapeHtml(featured.title)}</strong> plus our separate future roadmap.</p>
+          <p>Android games by ${escapeHtml(site.studioName)}, led by <strong>${escapeHtml(featured.title)}</strong> alongside our separate future project slate.</p>
         </div>
+      </div>
+    </section>
 
+    <section class="section surface--cobalt">
+      <div class="container">
         <div class="filter-bar" role="group" aria-label="Filter games by release status">
           <button type="button" class="filter-btn" data-filter="all" aria-pressed="true">All Titles (${games.length})</button>
           <button type="button" class="filter-btn" data-filter="released" aria-pressed="false">Available Now (${releasedCount})</button>
@@ -695,7 +719,7 @@ function buildGamesIndexPage(site, games, assetVersions) {
         </div>
 
         <p id="catalog-status" class="catalog-status-note" aria-live="polite">
-          Showing ${games.length} ${games.length === 1 ? "title" : "titles"}. ${escapeHtml(featured.shortTitle || featured.title)} is currently in development for Android.
+          Showing ${games.length} ${games.length === 1 ? "title" : "titles"}. ${escapeHtml(featured.shortTitle || featured.title)} is in active development for Android.
         </p>
 
         <div class="games-grid games-grid--featured-first">
@@ -709,8 +733,8 @@ function buildGamesIndexPage(site, games, assetVersions) {
     site,
     games,
     assetVersions,
-    title: `Our Games — ${site.studioName}`,
-    description: `Explore Android mobile games by ${site.studioName}, led by Color Ball Drop: Rope Puzzle and upcoming future titles.`,
+    title: `Our Games | ${site.studioName}`,
+    description: `Explore Android mobile games by ${site.studioName}, led by Color Ball Drop: Rope Puzzle and upcoming future projects.`,
     currentPath: "/games/",
     content,
   });
@@ -743,7 +767,7 @@ function buildGameDetailPage(site, games, game, assetVersions) {
 
   if (isPlanned) {
     const plannedContent = `
-      <section class="section">
+      <section class="section surface--sapphire">
         <div class="container">
           <nav aria-label="Breadcrumb">
             <ol class="breadcrumb">
@@ -756,13 +780,13 @@ function buildGameDetailPage(site, games, game, assetVersions) {
           </nav>
 
           <div class="prose">
-            <div>${renderStatusPill(game)}</div>
             <h1>${escapeHtml(game.title)}</h1>
+            <div>${renderStatusPill(game)}</div>
             ${(game.longDescription || []).map((p) => `<p>${escapeHtml(p)}</p>`).join("\n            ")}
 
             <div class="notice-box">
               <strong>Looking for Our Active Game?</strong>
-              <p>Our current game in development for Android is <strong>${escapeHtml(featured.title)}</strong> — an offline 2D physics puzzle game with 100 levels and 5 chapters. ${escapeHtml(game.title)} is a separate future project not yet in production.</p>
+              <p>Our current game in development for Android is <strong>${escapeHtml(featured.title)}</strong>, an offline 2D physics puzzle game with 100 levels and 5 chapters. ${escapeHtml(game.title)} is a separate future project not yet in production.</p>
             </div>
 
             <div class="actions" style="margin-top: var(--space-4);">
@@ -771,7 +795,7 @@ function buildGameDetailPage(site, games, game, assetVersions) {
                 ${ICONS.arrowRight}
               </a>
               <a class="btn btn--secondary" href="/games/">Back to Our Games</a>
-              <a class="btn btn--ghost" href="/privacy/${escapeHtml(game.slug)}/">
+              <a class="btn btn--light-on-dark" href="/privacy/${escapeHtml(game.slug)}/">
                 ${ICONS.shield}
                 <span>Reserved Privacy URL</span>
               </a>
@@ -785,7 +809,7 @@ function buildGameDetailPage(site, games, game, assetVersions) {
       site,
       games,
       assetVersions,
-      title: game.seo?.title || `${game.title} — ${site.studioName}`,
+      title: game.seo?.title || `${game.title} | ${site.studioName}`,
       description: game.seo?.description || game.shortPitch,
       currentPath: pagePath,
       bodyAttrs: `data-game-slug="${escapeHtml(game.slug)}" data-game-status="${escapeHtml(game.status)}"`,
@@ -798,16 +822,28 @@ function buildGameDetailPage(site, games, game, assetVersions) {
   const mechanics = Array.isArray(game.mechanics) ? game.mechanics : [];
   const features = Array.isArray(game.features) ? game.features : [];
 
+  const storeButton = renderStoreCta(game, "game-hero", "primary");
+  const heroPrimaryAction =
+    storeButton ||
+    `<a class="btn btn--primary" href="#gameplay-video">
+      ${ICONS.play}
+      <span>Watch Real Gameplay</span>
+    </a>`;
+
   const videoSection = game.media?.videoUrl
-    ? `<section class="section section--surface">
+    ? `<section id="gameplay-video" class="section surface--light">
       <div class="container">
-        <div class="video-stage">
-          <div class="video-phone">
-            <video controls playsinline preload="metadata" aria-label="Real ${escapeHtml(game.shortTitle || game.title)} gameplay video"${game.media.videoPoster ? ` poster="${escapeHtml(game.media.videoPoster)}"` : ""}>
-              <source src="${escapeHtml(game.media.videoUrl)}" type="${escapeHtml(getVideoMimeType(game.media.videoUrl))}">
-              Your browser does not support embedded gameplay video.
-            </video>
+        <div class="gameplay-stage">
+          <div class="video-column">
+            <div class="video-phone">
+              <video controls playsinline preload="metadata" aria-label="Real ${escapeHtml(game.shortTitle || game.title)} gameplay video"${game.media.videoPoster ? ` poster="${escapeHtml(game.media.videoPoster)}"` : ""}>
+                <source src="${escapeHtml(game.media.videoUrl)}" type="${escapeHtml(getVideoMimeType(game.media.videoUrl))}">
+                Your browser does not support embedded gameplay video.
+              </video>
+            </div>
+            <span class="media-note">Actual Android Build Capture</span>
           </div>
+
           <div class="spotlight-copy">
             <h2>Watch Real Gameplay</h2>
             <div class="prose">
@@ -828,77 +864,72 @@ function buildGameDetailPage(site, games, game, assetVersions) {
 
   const screenshotsSection =
     screenshots.length > 0
-      ? `<section id="screenshots" class="section">
+      ? `<section id="screenshots" class="section surface--light-alt" data-reel>
       <div class="container">
-        <div class="section-header">
-          <h2>Authentic Gameplay Screenshots</h2>
-          <p>Real portrait captures taken directly from ${escapeHtml(game.shortTitle || game.title)} — showing levels, chapters, 3-star wins, and blade trails.</p>
+        <div class="section-header section-header--split">
+          <div>
+            <h2>Authentic Gameplay Screenshots</h2>
+            <p style="margin-top: var(--space-3);">Real portrait captures taken directly from ${escapeHtml(game.shortTitle || game.title)} showing levels, chapter select, 3-star wins, and blade trails.</p>
+          </div>
+          ${renderReelButtons("game screenshots")}
         </div>
-        <div class="phone-gallery${screenshots.length === 6 ? " phone-gallery--six" : ""}">
-          ${screenshots
-            .map(
-              (shot) => `<figure class="phone-shot">
-            <div class="phone-shot__frame">
-              <img src="${escapeHtml(shot.src)}" alt="${escapeHtml(shot.alt)}" width="540" height="960" loading="lazy">
-            </div>
-            <figcaption>${escapeHtml(shot.caption || shot.alt)}</figcaption>
-          </figure>`
-            )
-            .join("\n          ")}
-        </div>
+        ${renderScreenshotReel(screenshots, { layout: screenshots.length >= 5 ? "six" : "four", label: `${game.shortTitle || game.title} screenshots` })}
       </div>
     </section>`
       : "";
 
-  const chaptersSection =
-    chapters.length > 0
-      ? `<section class="section section--surface">
+  const chaptersAndHighlightsSection =
+    chapters.length > 0 || features.length > 0
+      ? `<section class="section surface--cobalt">
       <div class="container">
-        <div class="section-header">
-          <h2>5 Chapters · 100 Levels</h2>
-          <p>Each chapter introduces fresh physics contraptions and tighter multi-ball cascades.</p>
+        ${
+          chapters.length > 0
+            ? `<div class="section-header">
+          <h2>5 Chapters &middot; 100 Levels</h2>
+          <p>Each chapter adds new physics contraptions and tighter multi-ball cascades.</p>
         </div>
-        <div class="chapters-grid">
+        <ol class="chapter-track" aria-label="Five chapters">
           ${chapters
             .map(
-              (ch) => `<div class="chapter-card">
-            <span class="chapter-num">Chapter ${ch.number}</span>
-            <h3>${escapeHtml(ch.name)}</h3>
-            <span class="chapter-levels">${escapeHtml(ch.levels)}</span>
-          </div>`
+              (ch) => `<li class="chapter-node">
+            <span class="chapter-node__badge" aria-hidden="true">${ch.number}</span>
+            <div class="chapter-node__meta">
+              <span class="chapter-node__levels">${escapeHtml(ch.levels)}</span>
+              <h3>${escapeHtml(ch.name)}</h3>
+            </div>
+          </li>`
             )
             .join("\n          ")}
-        </div>
-      </div>
-    </section>`
-      : "";
+        </ol>`
+            : ""
+        }
 
-  const featuresSection =
-    features.length > 0
-      ? `<section class="section">
-      <div class="container">
-        <div class="section-header">
-          <h2>Key Features</h2>
+        ${
+          features.length > 0
+            ? `<div class="section-header" style="margin-top: var(--space-12);">
+          <h2>Built Into Every Level</h2>
         </div>
-        <div class="features-grid">
+        <ul class="highlight-rows">
           ${features
             .map(
-              (feat, idx) => `<div class="feature-item">
+              (feat, idx) => `<li class="highlight-row">
             ${renderFeatureIcon(feat.icon, idx)}
             <div>
               <h3>${escapeHtml(feat.title)}</h3>
               <p>${escapeHtml(feat.description)}</p>
             </div>
-          </div>`
+          </li>`
             )
             .join("\n          ")}
-        </div>
+        </ul>`
+            : ""
+        }
       </div>
     </section>`
       : "";
 
   const content = `
-    <section class="game-hero">
+    <section class="game-hero surface--sapphire">
       <div class="container">
         <nav aria-label="Breadcrumb">
           <ol class="breadcrumb">
@@ -916,8 +947,8 @@ function buildGameDetailPage(site, games, game, assetVersions) {
             <p class="hero-lead">${escapeHtml(game.shortPitch)}</p>
 
             <div class="actions">
-              ${renderStoreCta(game, "game-hero", "primary")}
-              <a class="btn btn--ghost" href="/privacy/${escapeHtml(game.slug)}/">
+              ${heroPrimaryAction}
+              <a class="btn btn--light-on-dark" href="/privacy/${escapeHtml(game.slug)}/">
                 ${ICONS.shield}
                 <span>Privacy Policy</span>
               </a>
@@ -938,10 +969,9 @@ function buildGameDetailPage(site, games, game, assetVersions) {
 
     ${videoSection}
     ${screenshotsSection}
-    ${chaptersSection}
-    ${featuresSection}
+    ${chaptersAndHighlightsSection}
 
-    <section class="section section--surface">
+    <section class="section surface--sapphire">
       <div class="container">
         <div class="section-header">
           <h2>Game Information</h2>
@@ -965,13 +995,13 @@ function buildGameDetailPage(site, games, game, assetVersions) {
           </div>
           <div class="fact-pair">
             <dt>Play Mode</dt>
-            <dd>Offline · Portrait</dd>
+            <dd>Offline &middot; Portrait</dd>
           </div>
           ${
             game.packageId
               ? `<div class="fact-pair">
             <dt>Android Package</dt>
-            <dd style="font-size: 0.92rem; overflow-wrap: anywhere;">${escapeHtml(game.packageId)}</dd>
+            <dd class="is-package">${escapeHtml(game.packageId)}</dd>
           </div>`
               : ""
           }
@@ -984,7 +1014,7 @@ function buildGameDetailPage(site, games, game, assetVersions) {
     site,
     games,
     assetVersions,
-    title: game.seo?.title || `${game.title} — ${site.studioName}`,
+    title: game.seo?.title || `${game.title} | ${site.studioName}`,
     description: game.seo?.description || game.shortPitch,
     currentPath: pagePath,
     bodyAttrs: `data-game-slug="${escapeHtml(game.slug)}" data-game-status="${escapeHtml(game.status)}"`,
@@ -997,27 +1027,27 @@ function buildGameDetailPage(site, games, game, assetVersions) {
 function buildAboutPage(site, games, assetVersions) {
   const featured = games.find((g) => g.featured) || games[0];
   const content = `
-    <section class="section">
+    <section class="section surface--sapphire">
       <div class="container">
         <div class="studio-split">
           <div class="prose">
             <h1>About ${escapeHtml(site.studioName)}</h1>
-            <p>${escapeHtml(site.studioName)} is an independent mobile game studio creating original casual puzzle experiences for Android and Google Play.</p>
-            <p>Our active project is <a href="/games/${escapeHtml(featured.slug)}/">${escapeHtml(featured.title)}</a> — an offline 2D physics puzzle game with 100 levels, 5 chapters, colorblind symbols, and responsive one-hand portrait controls.</p>
+            <p>${escapeHtml(site.studioName)} is an independent mobile game studio crafting tactile offline puzzle games for Android and Google Play.</p>
+            <p>Our active project is <a href="/games/${escapeHtml(featured.slug)}/">${escapeHtml(featured.title)}</a>, an offline 2D physics puzzle game with 100 levels, 5 chapters, colorblind shape symbols, and one-hand portrait touch controls.</p>
 
             <h2>How We Build Games</h2>
             <ul>
-              <li><strong>Gameplay first:</strong> Clean physics interactions and readable puzzles that respect your time.</li>
-              <li><strong>Offline friendly:</strong> Local progress saves so you can play anywhere on Android.</li>
-              <li><strong>Transparent publishing:</strong> Honest release statuses, real gameplay captures, and clear per-game privacy policies.</li>
+              <li><strong>Gameplay first:</strong> Crisp physics reactions and readable contraptions that feel great on mobile touchscreens.</li>
+              <li><strong>Offline by default:</strong> Campaign progress and settings stay on your device so levels play anywhere.</li>
+              <li><strong>Honest previews:</strong> Real Android gameplay captures separated clearly from promotional illustrations, paired with dedicated per-game privacy policies.</li>
             </ul>
 
             <div class="actions" style="margin-top: var(--space-4);">
               <a class="btn btn--primary" href="/games/${escapeHtml(featured.slug)}/">
-                <span>Discover ${escapeHtml(featured.shortTitle || featured.title)}</span>
+                <span>Explore ${escapeHtml(featured.shortTitle || featured.title)}</span>
                 ${ICONS.arrowRight}
               </a>
-              <a class="btn btn--secondary" href="/contact/">Contact Studio</a>
+              <a class="btn btn--light-on-dark" href="/contact/">Contact Studio</a>
             </div>
           </div>
 
@@ -1029,7 +1059,7 @@ function buildAboutPage(site, games, assetVersions) {
               height="900"
               loading="eager"
             >
-            <span class="art-caption-badge">Dev Affan Studio Art</span>
+            <span class="art-caption-badge">Promotional Illustration</span>
           </div>
         </div>
       </div>
@@ -1040,61 +1070,82 @@ function buildAboutPage(site, games, assetVersions) {
     site,
     games,
     assetVersions,
-    title: `About Studio — ${site.studioName}`,
-    description: `Learn about ${site.studioName}, an independent mobile game studio creating original Android physics puzzle games.`,
+    title: `About Studio | ${site.studioName}`,
+    description: `Learn about ${site.studioName}, an independent mobile game studio building original Android physics puzzle games.`,
     currentPath: "/about/",
     content,
   });
 }
 
 function buildContactPage(site, games, assetVersions) {
+  const featured = games.find((g) => g.featured) || games[0];
   const hasVerifiedEmail = Boolean(site.contact?.email && site.contact?.emailVerified);
   const configuredSocials = Object.entries(site.social || {}).filter(([, url]) => Boolean(url));
 
-  const emailSection = hasVerifiedEmail
-    ? `<p>For player support, feedback, or privacy inquiries, email <a href="mailto:${escapeHtml(site.contact.email)}">${escapeHtml(site.contact.email)}</a>.</p>`
-    : `<div class="notice-box">
-        <strong>Studio Support Email — Pending Review &amp; Approval</strong>
-        <p>No public support email has been published yet. Add your approved studio contact email in <code>data/site.json</code> (<code>contact.email</code> and <code>contact.emailVerified: true</code>) before launching on Google Play Console.</p>
+  const supportCardHtml = hasVerifiedEmail
+    ? `<div class="contact-panel">
+        <h2>Player Support &amp; Inquiries</h2>
+        <p>For help with ${escapeHtml(featured.title)}, bug reports, or privacy questions, email our studio directly:</p>
+        <div class="actions">
+          <a class="btn btn--primary" href="mailto:${escapeHtml(site.contact.email)}">
+            <span>${escapeHtml(site.contact.email)}</span>
+          </a>
+        </div>
+      </div>`
+    : `<div class="contact-panel">
+        <h2>Player Support Channel Launching Soon</h2>
+        <p>We are finalizing a dedicated studio support email ahead of the Google Play release of <strong>${escapeHtml(featured.title)}</strong>. That address will appear right here before the game goes live.</p>
+        <p>Once published, you can contact ${escapeHtml(site.studioName)} here for player support, bug reports, accessibility feedback, and privacy questions.</p>
       </div>`;
 
   const socialButtons =
     configuredSocials.length > 0
-      ? configuredSocials
-          .map(
-            ([network, url]) =>
-              `<a class="btn btn--secondary" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
-                <span>${escapeHtml(network.charAt(0).toUpperCase() + network.slice(1))}</span>
-                ${ICONS.external}
-              </a>`
-          )
-          .join("\n            ")
+      ? `<div class="actions" style="margin-top: var(--space-3);">
+          ${configuredSocials
+            .map(
+              ([network, url]) =>
+                `<a class="btn btn--secondary" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
+                  <span>${escapeHtml(network.charAt(0).toUpperCase() + network.slice(1))}</span>
+                  ${ICONS.external}
+                </a>`
+            )
+            .join("\n          ")}
+        </div>`
       : "";
 
   const content = `
-    <section class="section">
+    <section class="section surface--sapphire section--compact">
       <div class="container">
-        <div class="section-header">
+        <div class="section-header" style="margin-bottom: 0;">
           <h1>Contact ${escapeHtml(site.studioName)}</h1>
-          <p>Reach out regarding our Android games, bug reports, or privacy policy questions.</p>
+          <p>Player support status, privacy links, and studio information for our Android games.</p>
         </div>
+      </div>
+    </section>
 
-        <div class="prose">
-          <h2>Player Support &amp; Inquiries</h2>
-          ${emailSection}
+    <section class="section surface--cobalt">
+      <div class="container">
+        <div class="contact-layout">
+          ${supportCardHtml}
 
-          <h2>Fallback Public Channel</h2>
-          <p>Until our official studio support email is finalized, you can reach us through our public GitHub repository:</p>
-          <div class="actions">
-            <a class="btn btn--secondary" href="${escapeHtml(site.githubUrl)}" target="_blank" rel="noopener noreferrer">
-              <span>GitHub Repository</span>
-              ${ICONS.external}
-            </a>
+          <div class="contact-panel">
+            <h2>Helpful Links</h2>
+            <ul class="contact-links-list">
+              <li>
+                <a href="/games/${escapeHtml(featured.slug)}/">Explore ${escapeHtml(featured.title)}</a>
+                <p style="font-size: var(--text-sm);">Watch real gameplay and check release status.</p>
+              </li>
+              <li>
+                <a href="/privacy/${escapeHtml(featured.slug)}/">${escapeHtml(featured.shortTitle || featured.title)} Privacy Policy</a>
+                <p style="font-size: var(--text-sm);">Review local saves and pre-release SDK status.</p>
+              </li>
+              <li>
+                <a href="/privacy/">Website Privacy Policy</a>
+                <p style="font-size: var(--text-sm);">Learn how this static website operates.</p>
+              </li>
+            </ul>
             ${socialButtons}
           </div>
-
-          <h2>Privacy &amp; Data Requests</h2>
-          <p>Each game maintains its own dedicated privacy policy URL. Visit our <a href="/privacy/">Privacy Hub</a> to review disclosures for this website and individual games.</p>
         </div>
       </div>
     </section>
@@ -1104,8 +1155,8 @@ function buildContactPage(site, games, assetVersions) {
     site,
     games,
     assetVersions,
-    title: `Contact — ${site.studioName}`,
-    description: `Official contact and player support channels for ${site.studioName}.`,
+    title: `Contact | ${site.studioName}`,
+    description: `Support status and privacy resources for ${site.studioName} Android games.`,
     currentPath: "/contact/",
     content,
   });
@@ -1117,31 +1168,35 @@ function buildWebsitePrivacyPage(site, games, assetVersions) {
       (game) => `<tr>
             <td><strong>${escapeHtml(game.title)}</strong></td>
             <td><a href="/privacy/${escapeHtml(game.slug)}/"><code>/privacy/${escapeHtml(game.slug)}/</code></a></td>
-            <td>${game.privacy?.requiresVerification ? "Draft — pending final pre-launch review" : "Verified"}</td>
+            <td>${game.privacy?.requiresVerification ? "Pre-release draft" : "Published"}</td>
           </tr>`
     )
     .join("\n          ");
 
   const content = `
-    <section class="section">
+    <section class="section surface--sapphire section--compact">
       <div class="container">
-        <div class="section-header">
+        <div class="section-header" style="margin-bottom: 0;">
           <h1>Privacy Policies</h1>
-          <p>Website privacy practices and individual Google Play privacy policy URLs for every ${escapeHtml(site.studioName)} game.</p>
+          <p>Website privacy practices and dedicated Google Play privacy policy URLs for ${escapeHtml(site.studioName)} games.</p>
         </div>
+      </div>
+    </section>
 
+    <section class="section surface--light">
+      <div class="container">
         <div class="prose">
           <h2>Individual Game Privacy Policies</h2>
-          <p>Each Android game has its own dedicated privacy policy URL for Google Play Console:</p>
+          <p>Each Android game maintains its own dedicated privacy policy page for Google Play:</p>
         </div>
 
-        <div class="table-wrap" style="margin-top: var(--space-6); margin-bottom: var(--space-12); max-width: 860px;">
+        <div class="table-wrap" style="margin-top: var(--space-6); margin-bottom: var(--space-12);">
           <table>
             <thead>
               <tr>
                 <th scope="col">Game</th>
                 <th scope="col">Privacy Policy URL</th>
-                <th scope="col">Review Status</th>
+                <th scope="col">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -1161,7 +1216,7 @@ function buildWebsitePrivacyPage(site, games, assetVersions) {
           </ul>
 
           <h2>Contact</h2>
-          <p>For privacy questions regarding this website, please visit our <a href="/contact/">Contact page</a>.</p>
+          <p>For privacy questions regarding this website, please check our <a href="/contact/">Contact page</a>.</p>
         </div>
       </div>
     </section>
@@ -1171,7 +1226,7 @@ function buildWebsitePrivacyPage(site, games, assetVersions) {
     site,
     games,
     assetVersions,
-    title: `Privacy Policies — ${site.studioName}`,
+    title: `Privacy Policies | ${site.studioName}`,
     description: `Website privacy policy and dedicated Google Play privacy policy URLs for ${site.studioName} games.`,
     currentPath: "/privacy/",
     content,
@@ -1195,7 +1250,7 @@ function buildGamePrivacyPage(site, games, game, assetVersions) {
     .join("\n        ");
 
   const content = `
-    <section class="section">
+    <section class="section surface--sapphire section--compact">
       <div class="container">
         <nav aria-label="Breadcrumb">
           <ol class="breadcrumb">
@@ -1207,16 +1262,20 @@ function buildGamePrivacyPage(site, games, game, assetVersions) {
           </ol>
         </nav>
 
-        <div class="section-header">
-          <h1>${escapeHtml(game.title)} — Privacy Policy</h1>
+        <div class="section-header" style="margin-bottom: 0;">
+          <h1>${escapeHtml(game.title)} Privacy Policy</h1>
           <p>Effective Date: ${escapeHtml(privacy.effectiveDate || site.lastUpdated)} &middot; Developer: ${escapeHtml(site.studioName)}${game.packageId ? ` &middot; Package: <code>${escapeHtml(game.packageId)}</code>` : ""}</p>
         </div>
+      </div>
+    </section>
 
+    <section class="section surface--light">
+      <div class="container">
         ${
           privacy.requiresVerification
             ? `<div class="notice-box" style="margin-bottom: var(--space-8); max-width: 860px;">
-                <strong>Draft Policy — Pending Final Pre-Launch Verification</strong>
-                <p>This privacy policy reflects the current verified development build of <strong>${escapeHtml(game.title)}</strong>. Before publishing on Google Play Console, confirm your final signed release bundle's merged Android permissions, Google Play Data Safety answers, target audience / Families Policy status, and add a verified studio support email in <code>data/site.json</code>.</p>
+                <strong>Pre-Release Privacy Notice</strong>
+                <p>This policy reflects the current development build of <strong>${escapeHtml(game.title)}</strong> and will undergo final verification against the signed release build, Google Play Data Safety declarations, and target audience settings before launch.</p>
               </div>`
             : ""
         }
@@ -1236,14 +1295,14 @@ function buildGamePrivacyPage(site, games, game, assetVersions) {
 
         ${
           sdks.length > 0
-            ? `<div class="table-wrap" style="margin-top: var(--space-6); margin-bottom: var(--space-10); max-width: 920px;">
+            ? `<div class="table-wrap" style="margin-top: var(--space-6); margin-bottom: var(--space-10);">
                 <table>
                   <thead>
                     <tr>
                       <th scope="col">Service / SDK</th>
-                      <th scope="col">Current Implementation Status</th>
+                      <th scope="col">Current Build Status</th>
                       <th scope="col">Reference</th>
-                      <th scope="col">Pre-Launch Check</th>
+                      <th scope="col">Release Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1256,7 +1315,7 @@ function buildGamePrivacyPage(site, games, game, assetVersions) {
 
         <div class="prose">
           <h2>3. Children's Privacy</h2>
-          <p>${escapeHtml(privacy.childrenAudienceNote || "Please verify target age audience disclosures before launch.")}</p>
+          <p>${escapeHtml(privacy.childrenAudienceNote || "Target age rating disclosures are finalized prior to publication.")}</p>
 
           <h2>4. Changes to This Policy</h2>
           <p>We will update this Privacy Policy before enabling any new third-party SDK, advertising, billing, or analytics service. The effective date above reflects the latest revision.</p>
@@ -1265,7 +1324,7 @@ function buildGamePrivacyPage(site, games, game, assetVersions) {
           ${
             hasVerifiedEmail
               ? `<p>If you have questions about this Privacy Policy, contact us at <a href="mailto:${escapeHtml(site.contact.email)}">${escapeHtml(site.contact.email)}</a>.</p>`
-              : `<p><strong>[REQUIRES VERIFICATION]</strong> Add your verified studio support email in <code>data/site.json</code> before submitting this URL to Google Play Console. In the meantime, see our <a href="/contact/">Contact page</a>.</p>`
+              : `<p>Our studio support email is being finalized ahead of Google Play launch and will be added here before release. See our <a href="/contact/">Contact page</a> for current studio information.</p>`
           }
         </div>
       </div>
@@ -1276,8 +1335,8 @@ function buildGamePrivacyPage(site, games, game, assetVersions) {
     site,
     games,
     assetVersions,
-    title: `${game.shortTitle || game.title} Privacy Policy — ${site.studioName}`,
-    description: `Privacy policy and verified SDK status for ${game.title} on Android / Google Play by ${site.studioName}.`,
+    title: `${game.shortTitle || game.title} Privacy Policy | ${site.studioName}`,
+    description: `Privacy policy and SDK status for ${game.title} on Android and Google Play by ${site.studioName}.`,
     currentPath: `/privacy/${game.slug}/`,
     content,
   });
@@ -1286,14 +1345,14 @@ function buildGamePrivacyPage(site, games, game, assetVersions) {
 function build404Page(site, games, assetVersions) {
   const featured = games.find((g) => g.featured) || games[0];
   const content = `
-    <section class="section">
+    <section class="section surface--sapphire">
       <div class="container">
         <div class="prose">
           <h1>Page Not Found</h1>
           <p>That link missed the bucket. Head back to our games catalog or explore ${escapeHtml(featured.title)}.</p>
           <div class="actions" style="margin-top: var(--space-4);">
             <a class="btn btn--primary" href="/games/${escapeHtml(featured.slug)}/">
-              <span>Discover ${escapeHtml(featured.shortTitle || featured.title)}</span>
+              <span>Explore ${escapeHtml(featured.shortTitle || featured.title)}</span>
               ${ICONS.arrowRight}
             </a>
             <a class="btn btn--secondary" href="/games/">Browse Our Games</a>
@@ -1307,7 +1366,7 @@ function build404Page(site, games, assetVersions) {
     site,
     games,
     assetVersions,
-    title: `Page Not Found — ${site.studioName}`,
+    title: `Page Not Found | ${site.studioName}`,
     description: `The requested page could not be found on ${site.studioName}.`,
     currentPath: "/404.html",
     noIndex: true,
